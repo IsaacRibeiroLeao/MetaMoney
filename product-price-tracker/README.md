@@ -1,74 +1,87 @@
-# Product Price Tracker
+# Rastreador de Preços e Vendas (MetaMoney)
 
-A simple React application with FastAPI backend that allows users to track product prices, add them to an Excel sheet, and lock final values.
+Uma aplicação React com backend FastAPI que permite aos usuários rastrear preços de produtos e vendas, salvá-los em arquivos CSV e bloquear valores finais.
 
-## Project Structure
+## Estrutura do Projeto
 
-- `frontend/`: React application built with TypeScript and Material UI
-- `backend/`: FastAPI backend that handles Excel operations
+- `frontend/`: Aplicação React construída com TypeScript e Bootstrap
+- `backend/`: Backend FastAPI que gerencia operações com arquivos CSV
 
-## Setup and Installation
+## Configuração e Instalação
 
-### Backend Setup
+### Configuração do Backend
 
-1. Navigate to the backend directory:
+1. Navegue até o diretório do backend:
    ```
    cd backend
    ```
 
-2. Create a virtual environment (optional but recommended):
+2. Crie um ambiente virtual (opcional, mas recomendado):
    ```
    python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   source venv/bin/activate  # No Windows: venv\Scripts\activate
    ```
 
-3. Install dependencies:
+3. Instale as dependências:
    ```
    pip install -r requirements.txt
    ```
 
-4. Run the FastAPI server:
+4. Execute o servidor FastAPI:
    ```
    uvicorn main:app --reload --host 0.0.0.0 --port 8000
    ```
 
-### Frontend Setup
+### Configuração do Frontend
 
-1. Navigate to the frontend directory:
+1. Navegue até o diretório do frontend:
    ```
    cd frontend
    ```
 
-2. Install dependencies:
+2. Instale as dependências:
    ```
    npm install
    ```
 
-3. Run the development server:
+3. Execute o servidor de desenvolvimento:
    ```
    npm start
    ```
 
-## Usage
+4. Ou execute ambos (frontend e backend) simultaneamente:
+   ```
+   npm run dev
+   ```
 
-1. Start both the backend and frontend servers.
-2. Open your browser and navigate to `http://localhost:3000`.
-3. Use the form to add new products with their prices.
-4. Products will be automatically saved to an Excel file on the backend.
-5. You can edit products as needed until you're satisfied with the values.
-6. Lock a product when you're satisfied with its final value.
+## Uso
 
-## Features
+1. Inicie os servidores backend e frontend.
+2. Abra seu navegador e acesse `http://localhost:3000`.
+3. Use as abas para alternar entre gerenciamento de Produtos e Vendas.
+4. Adicione novos produtos ou vendas usando os formulários.
+5. Os dados serão automaticamente salvos em arquivos CSV no backend.
+6. Você pode editar produtos e vendas conforme necessário.
+7. Bloqueie os valores finais quando estiver satisfeito.
+8. Veja o resumo financeiro que mostra a diferença entre produtos e vendas.
 
-- Real-time product tracking
-- Excel sheet generation and management
-- Ability to lock final values
-- Modern UI with Material Design
-- Full-stack application with React and FastAPI
+## Funcionalidades
 
-## API Endpoints
+- Rastreamento de produtos e vendas em tempo real
+- Geração e gerenciamento de arquivos CSV
+- Capacidade de bloquear valores finais
+- Interface moderna e responsiva com Bootstrap
+- Resumo financeiro com cálculo de lucro/prejuízo
+- Aplicação full-stack com React e FastAPI
+- Layout otimizado para dispositivos móveis
 
-- `GET /products`: Retrieve all products
-- `POST /products`: Add a new product
-- `PUT /products/{product_id}`: Update a product
-- `PUT /products/{product_id}/lock`: Lock a product's final value
+## Endpoints da API
+
+- `GET /products`: Recuperar todos os produtos
+- `POST /products`: Adicionar um novo produto
+- `PUT /products/{product_id}`: Atualizar um produto
+- `PUT /lock-final-value`: Bloquear o valor final dos produtos
+- `GET /vendas`: Recuperar todas as vendas
+- `POST /vendas`: Adicionar uma nova venda
+- `PUT /vendas/{venda_id}`: Atualizar uma venda
+- `PUT /lock-vendas-final-value`: Bloquear o valor final das vendas
