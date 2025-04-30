@@ -3,6 +3,7 @@ import ProductForm from './ProductForm';
 import ProductList from './ProductList';
 import { Product } from '../types';
 import { getProducts, addProduct, updateProduct, getFinalValue, lockFinalValue, FinalValue } from '../services/api';
+import { eventService, EVENTS } from '../services/eventService';
 
 const ProductTracker: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -50,6 +51,8 @@ const ProductTracker: React.FC = () => {
       const newProduct = await addProduct(product);
       setProducts(prev => [...prev, newProduct]);
       showNotification('Produto adicionado com sucesso!', 'success');
+      // Emitir evento de atualização de produtos
+      eventService.emit(EVENTS.PRODUCTS_UPDATED);
     } catch (err) {
       console.error('Erro ao adicionar produto:', err);
       showNotification('Falha ao adicionar produto. Tente novamente.', 'danger');
@@ -64,6 +67,8 @@ const ProductTracker: React.FC = () => {
       );
       setEditingProduct(null);
       showNotification('Produto atualizado com sucesso!', 'success');
+      // Emitir evento de atualização de produtos
+      eventService.emit(EVENTS.PRODUCTS_UPDATED);
     } catch (err) {
       console.error('Erro ao atualizar produto:', err);
       showNotification('Falha ao atualizar produto. Tente novamente.', 'danger');
@@ -76,6 +81,8 @@ const ProductTracker: React.FC = () => {
       setFinalValue(result);
       setIsLocked(true);
       showNotification('Valor final bloqueado com sucesso!', 'success');
+      // Emitir evento de atualização de valores finais
+      eventService.emit(EVENTS.FINAL_VALUES_UPDATED);
     } catch (err) {
       console.error('Erro ao bloquear valor final:', err);
       showNotification('Falha ao bloquear valor final. Tente novamente.', 'danger');
@@ -119,88 +126,127 @@ const ProductTracker: React.FC = () => {
     <div>
       {error && (
         <div className="alert alert-danger mb-4">
+          <i className="bi bi-exclamation-triangle-fill me-2"></i>
           {error}
         </div>
       )}
 
       {notification.show && (
         <div className={`alert alert-${notification.type} alert-dismissible fade show`} role="alert">
+          <i className={`bi ${notification.type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'} me-2`}></i>
           {notification.message}
           <button type="button" className="btn-close" onClick={() => setNotification(prev => ({ ...prev, show: false }))}></button>
         </div>
       )}
 
-      {!isLocked && (
-        <div>
-          {editingProduct ? (
-            <div>
-              <h5 className="mb-3">Editar Produto</h5>
-              <ProductForm 
-                onSubmit={handleSubmit} 
-                initialProduct={editingProduct} 
-                disabled={isLocked}
-              />
-              <div className="mb-4">
-                <button 
-                  className="btn btn-link p-0" 
-                  onClick={() => setEditingProduct(null)}
-                >
-                  Cancelar edição e adicionar novo produto
-                </button>
+      <div className="card border-0 shadow-sm mb-4">
+        <div className="card-header bg-white d-flex justify-content-between align-items-center py-3">
+          <h5 className="mb-0 d-flex align-items-center">
+            <i className="bi bi-box-seam text-primary me-2"></i>
+            Produtos
+          </h5>
+          <div>
+            {isLocked ? (
+              <div className="badge bg-info text-dark d-flex align-items-center p-2">
+                <i className="bi bi-lock-fill me-1"></i>
+                <span>Valor final: R$ {finalValue?.total_sum.toFixed(2)}</span>
               </div>
-            </div>
-          ) : (
-            <div>
-              <h5 className="mb-3">Adicionar Novo Produto</h5>
-              <ProductForm onSubmit={handleSubmit} disabled={isLocked} />
-            </div>
-          )}
-        </div>
-      )}
-
-      <hr className="my-4" />
-      
-      <div className={`card mb-4 ${isLocked ? 'bg-light' : ''}`}>
-        <div className="card-body">
-          <div className="d-flex justify-content-between align-items-center">
-            <h5 className="mb-0">
-              <strong>Valor Total: </strong><strong style={{ fontSize: '1.2em' }}>R$ {totalSum.toFixed(2)}</strong>
-            </h5>
-            {!isLocked && (
-              <button 
-                className="btn btn-danger" 
+            ) : (
+              <button
+                className="btn btn-primary btn-sm"
                 onClick={handleLockFinalValue}
                 disabled={products.length === 0}
               >
-                <i className="bi bi-lock-fill me-2"></i>
-                Bloquear Valor Final
+                <i className="bi bi-lock me-1"></i>
+                <span className="d-none d-sm-inline">Bloquear Valor Final</span>
+                <span className="d-inline d-sm-none">Bloquear</span>
               </button>
             )}
-            {isLocked && (
-              <span className="badge bg-danger p-2">
-                <i className="bi bi-lock-fill me-2"></i>
-                Valor Final Bloqueado
-              </span>
-            )}
           </div>
+        </div>
+
+        <div className="card-body">
+          {loading ? (
+            <div className="text-center p-4">
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Carregando...</span>
+              </div>
+              <p className="mt-2 text-muted">Carregando produtos...</p>
+            </div>
+          ) : (
+            <>
+              {!isLocked && (
+                <div className="mb-4">
+                  <h6 className="mb-3 text-muted">
+                    <i className="bi bi-plus-circle me-2"></i>
+                    Adicionar Novo Produto
+                  </h6>
+                  {editingProduct ? (
+                    <>
+                      <ProductForm
+                        onSubmit={handleSubmit}
+                        initialProduct={editingProduct}
+                        disabled={isLocked} />
+                      <div className="mt-2">
+                        <button
+                          className="btn btn-link p-0"
+                          onClick={() => setEditingProduct(null)}
+                        >
+                          <i className="bi bi-arrow-left me-1"></i>
+                          Cancelar edição e adicionar novo produto
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <ProductForm onSubmit={handleSubmit} disabled={isLocked} />
+                  )}
+                </div>
+              )}
+
+              <div className="mt-4">
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <h6 className="mb-0 text-muted">
+                    <i className="bi bi-list-ul me-2"></i>
+                    Lista de Produtos
+                  </h6>
+                  <div className="badge bg-primary p-2">
+                    <i className="bi bi-cash-coin me-1"></i>
+                    Total: R$ {totalSum.toFixed(2)}
+                  </div>
+                </div>
+
+                <div className="table-responsive">
+                  <ProductList
+                    products={products}
+                    onEdit={handleEditClick}
+                    isLocked={isLocked} />
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
-      
-      <h5 className="mb-3">Lista de Produtos</h5>
-      
-      {loading ? (
-        <div className="text-center p-3">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Carregando...</span>
+
+      {/* Toast de notificação */}
+      {notification.show && (
+        <div
+          className={`toast show position-fixed bottom-0 end-0 m-3 text-white bg-${notification.type}`}
+          role="alert"
+          style={{ zIndex: 1060 }}
+        >
+          <div className="toast-header">
+            <i className={`bi bi-${notification.type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2`}></i>
+            <strong className="me-auto">Notificação</strong>
+            <button
+              type="button"
+              className="btn-close"
+              onClick={() => setNotification(prev => ({ ...prev, show: false }))}
+            ></button>
           </div>
-          <p className="mt-2">Carregando produtos...</p>
+          <div className="toast-body">
+            {notification.message}
+          </div>
         </div>
-      ) : (
-        <ProductList 
-          products={products} 
-          onEdit={handleEditClick} 
-          isLocked={isLocked}
-        />
       )}
     </div>
   );

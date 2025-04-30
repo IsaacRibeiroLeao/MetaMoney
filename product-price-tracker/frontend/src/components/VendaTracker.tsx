@@ -3,6 +3,7 @@ import VendaForm from './VendaForm';
 import VendaList from './VendaList';
 import { Venda } from '../types';
 import { getVendas, addVenda, updateVenda, getVendasFinalValue, lockVendasFinalValue, FinalValue } from '../services/api';
+import { eventService, EVENTS } from '../services/eventService';
 
 const VendaTracker: React.FC = () => {
   const [vendas, setVendas] = useState<Venda[]>([]);
@@ -50,6 +51,8 @@ const VendaTracker: React.FC = () => {
       const newVenda = await addVenda(venda);
       setVendas(prev => [...prev, newVenda]);
       showNotification('Venda adicionada com sucesso!', 'success');
+      // Emitir evento de atualização de vendas
+      eventService.emit(EVENTS.VENDAS_UPDATED);
     } catch (err) {
       console.error('Erro ao adicionar venda:', err);
       showNotification('Falha ao adicionar venda. Tente novamente.', 'danger');
@@ -64,6 +67,8 @@ const VendaTracker: React.FC = () => {
       );
       setEditingVenda(null);
       showNotification('Venda atualizada com sucesso!', 'success');
+      // Emitir evento de atualização de vendas
+      eventService.emit(EVENTS.VENDAS_UPDATED);
     } catch (err) {
       console.error('Erro ao atualizar venda:', err);
       showNotification('Falha ao atualizar venda. Tente novamente.', 'danger');
@@ -76,6 +81,8 @@ const VendaTracker: React.FC = () => {
       setFinalValue(result);
       setIsLocked(true);
       showNotification('Valor final das vendas bloqueado com sucesso!', 'success');
+      // Emitir evento de atualização de valores finais
+      eventService.emit(EVENTS.FINAL_VALUES_UPDATED);
     } catch (err) {
       console.error('Erro ao bloquear valor final das vendas:', err);
       showNotification('Falha ao bloquear valor final das vendas. Tente novamente.', 'danger');
