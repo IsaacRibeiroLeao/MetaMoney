@@ -106,7 +106,11 @@ const VendaTracker: React.FC = () => {
     try {
       await deleteVenda(id);
       setVendas(prev => prev.filter(v => v.id !== id));
+      // Atualizar o valor total após deletar
+      const finalValueData = await getVendasFinalValue();
+      setFinalValue(finalValueData);
       showNotification('Venda deletada com sucesso!', 'success');
+      eventService.emit(EVENTS.VENDAS_UPDATED);
     } catch (err) {
       console.error('Erro ao deletar venda:', err);
       showNotification('Falha ao deletar venda.', 'danger');
@@ -186,16 +190,18 @@ const VendaTracker: React.FC = () => {
             </div>
           ) : (
             <div>
-              <div className="mb-3 d-flex gap-2">
-                <button className="btn btn-outline-danger me-2" onClick={handleClearAll}>
-  <i className="bi bi-trash me-1"></i> Limpar Tudo
-</button>
-<a href="https://xtremeconfapi.onrender.com/export/products-csv" className="btn btn-outline-success" download>
-  <i className="bi bi-download me-1"></i> Baixar Produtos CSV
-</a>
-<a href="https://xtremeconfapi.onrender.com/export/vendas-csv" className="btn btn-outline-primary" download>
-  <i className="bi bi-download me-1"></i> Baixar Vendas CSV
-</a>
+              <div className="mb-3">
+                <div className="d-flex flex-column flex-sm-row gap-2 w-100">
+                  <button className="btn btn-outline-danger w-100 w-sm-auto" onClick={handleClearAll}>
+                    <i className="bi bi-trash me-1"></i> Limpar Tudo
+                  </button>
+                  <a href="https://xtremeconfapi.onrender.com/export/products-csv" className="btn btn-outline-success w-100 w-sm-auto" download>
+                    <i className="bi bi-download me-1"></i> Baixar Produtos CSV
+                  </a>
+                  <a href="https://xtremeconfapi.onrender.com/export/vendas-csv" className="btn btn-outline-primary w-100 w-sm-auto" download>
+                    <i className="bi bi-download me-1"></i> Baixar Vendas CSV
+                  </a>
+                </div>
               </div>
               <h5 className="mb-3">Adicionar Nova Venda</h5>
               <VendaForm onSubmit={handleSubmit} disabled={isLocked} />

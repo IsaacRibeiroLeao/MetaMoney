@@ -80,6 +80,9 @@ const ProductTracker: React.FC = () => {
     try {
       await deleteProduct(id);
       setProducts(prev => prev.filter(p => p.id !== id));
+      // Atualizar o valor total após deletar
+      const finalValueData = await getFinalValue();
+      setFinalValue(finalValueData);
       showNotification('Produto deletado com sucesso!', 'success');
       eventService.emit(EVENTS.PRODUCTS_UPDATED);
     } catch (err) {
