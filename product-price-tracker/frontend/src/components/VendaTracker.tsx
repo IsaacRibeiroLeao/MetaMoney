@@ -22,6 +22,8 @@ const VendaTracker: React.FC = () => {
     type: 'info'
   });
 
+
+  // :)
   const fetchData = async () => {
     try {
       setLoading(true);
