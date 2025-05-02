@@ -47,6 +47,21 @@ export function getComboProducts(): Product[] {
   return COMBO_PRODUCTS;
 }
 
+export const deleteProduct = async (id: number): Promise<{ deleted: boolean }> => {
+  const response = await axios.delete(`${API_URL}/products/${id}`);
+  return response.data;
+};
+
+export const deleteVenda = async (id: number): Promise<{ deleted: boolean }> => {
+  const response = await axios.delete(`${API_URL}/vendas/${id}`);
+  return response.data;
+};
+
+export const clearAll = async (): Promise<{ cleared: boolean }> => {
+  const response = await axios.delete(`${API_URL}/clear-all`);
+  return response.data;
+};
+
 export const updateProduct = async (product: Product): Promise<Product> => {
   if (!product.id) throw new Error('Product ID is required for update');
   const response = await axios.put(`${API_URL}/products/${product.id}`, product);

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import ProductForm from './ProductForm';
 import ProductList from './ProductList';
 import { Product } from '../types';
-import { getProducts, addProduct, updateProduct, getFinalValue, lockFinalValue, FinalValue } from '../services/api';
+import { getProducts, addProduct, updateProduct, getFinalValue, lockFinalValue, FinalValue, deleteProduct } from '../services/api';
 import { eventService, EVENTS } from '../services/eventService';
 
 const ProductTracker: React.FC = () => {
@@ -72,6 +72,19 @@ const ProductTracker: React.FC = () => {
     } catch (err) {
       console.error('Erro ao atualizar produto:', err);
       showNotification('Falha ao atualizar produto. Tente novamente.', 'danger');
+    }
+  };
+
+  const handleDeleteProduct = async (id: number) => {
+    if (!window.confirm('Tem certeza que deseja deletar este produto?')) return;
+    try {
+      await deleteProduct(id);
+      setProducts(prev => prev.filter(p => p.id !== id));
+      showNotification('Produto deletado com sucesso!', 'success');
+      eventService.emit(EVENTS.PRODUCTS_UPDATED);
+    } catch (err) {
+      console.error('Erro ao deletar produto:', err);
+      showNotification('Falha ao deletar produto.', 'danger');
     }
   };
 
@@ -216,17 +229,18 @@ const ProductTracker: React.FC = () => {
                 </div>
 
                 <div className="table-responsive">
-                  <ProductList
-                    products={products}
-                    onEdit={handleEditClick}
-                    isLocked={isLocked} />
+                  <ProductList 
+            products={products} 
+            onEdit={handleEditClick} 
+            onDelete={handleDeleteProduct}
+            isLocked={isLocked} 
+          />      
                 </div>
               </div>
             </>
           )}
         </div>
       </div>
-
       {/* Toast de notificação */}
       {notification.show && (
         <div

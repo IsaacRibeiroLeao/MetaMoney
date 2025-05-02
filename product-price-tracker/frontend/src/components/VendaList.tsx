@@ -4,10 +4,11 @@ import { Venda } from '../types';
 interface VendaListProps {
   vendas: Venda[];
   onEdit: (venda: Venda) => void;
+  onDelete: (id: number) => void;
   isLocked: boolean;
 }
 
-const VendaList: React.FC<VendaListProps> = ({ vendas, onEdit, isLocked }) => {
+const VendaList: React.FC<VendaListProps> = ({ vendas, onEdit, onDelete, isLocked }) => {
   if (vendas.length === 0) {
     return (
       <div className="alert alert-info">
@@ -46,6 +47,14 @@ const VendaList: React.FC<VendaListProps> = ({ vendas, onEdit, isLocked }) => {
                     <i className="bi bi-lock-fill me-1"></i>
                     Bloqueado
                   </span>
+                )}
+                {!isLocked && typeof venda.id === 'number' && (
+                  <button
+                    className="btn btn-sm btn-outline-danger ms-2"
+                    onClick={() => onDelete(venda.id as number)}
+                  >
+                    <i className="bi bi-trash"></i>
+                  </button>
                 )}
               </td>
             </tr>

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import VendaForm from './VendaForm';
 import VendaList from './VendaList';
 import { Venda } from '../types';
-import { getVendas, addVenda, updateVenda, getVendasFinalValue, lockVendasFinalValue, FinalValue } from '../services/api';
+import { getVendas, addVenda, updateVenda, getVendasFinalValue, lockVendasFinalValue, FinalValue, deleteVenda, clearAll } from '../services/api';
 import { eventService, EVENTS } from '../services/eventService';
 
 const VendaTracker: React.FC = () => {
@@ -101,6 +101,34 @@ const VendaTracker: React.FC = () => {
     }
   };
 
+  const handleDeleteVenda = async (id: number) => {
+    if (!window.confirm('Tem certeza que deseja deletar esta venda?')) return;
+    try {
+      await deleteVenda(id);
+      setVendas(prev => prev.filter(v => v.id !== id));
+      showNotification('Venda deletada com sucesso!', 'success');
+    } catch (err) {
+      console.error('Erro ao deletar venda:', err);
+      showNotification('Falha ao deletar venda.', 'danger');
+    }
+  };
+
+  // Função para limpar tudo
+  const handleClearAll = async () => {
+    if (!window.confirm('Tem certeza que deseja limpar todas as vendas e produtos?')) return;
+    try {
+      await clearAll();
+      setVendas([]);
+      showNotification('Todas as vendas e produtos foram removidos!', 'success');
+      eventService.emit(EVENTS.VENDAS_UPDATED);
+    } catch (err) {
+      console.error('Erro ao limpar tudo:', err);
+      showNotification('Falha ao limpar tudo.', 'danger');
+    }
+  };
+
+
+
   const showNotification = (message: string, type: 'success' | 'danger' | 'info') => {
     setNotification({
       show: true,
@@ -159,12 +187,15 @@ const VendaTracker: React.FC = () => {
           ) : (
             <div>
               <div className="mb-3 d-flex gap-2">
-                <a href="https://xtremeconfapi.onrender.com/download/produtos" className="btn btn-outline-success" download>
-                  <i className="bi bi-download me-1"></i> Baixar Produtos CSV
-                </a>
-                <a href="https://xtremeconfapi.onrender.com/download/vendas" className="btn btn-outline-primary" download>
-                  <i className="bi bi-download me-1"></i> Baixar Vendas CSV
-                </a>
+                <button className="btn btn-outline-danger me-2" onClick={handleClearAll}>
+  <i className="bi bi-trash me-1"></i> Limpar Tudo
+</button>
+<a href="https://xtremeconfapi.onrender.com/export/products-csv" className="btn btn-outline-success" download>
+  <i className="bi bi-download me-1"></i> Baixar Produtos CSV
+</a>
+<a href="https://xtremeconfapi.onrender.com/export/vendas-csv" className="btn btn-outline-primary" download>
+  <i className="bi bi-download me-1"></i> Baixar Vendas CSV
+</a>
               </div>
               <h5 className="mb-3">Adicionar Nova Venda</h5>
               <VendaForm onSubmit={handleSubmit} disabled={isLocked} />
@@ -214,6 +245,7 @@ const VendaTracker: React.FC = () => {
         <VendaList 
           vendas={vendas} 
           onEdit={handleEditClick} 
+          onDelete={handleDeleteVenda}
           isLocked={isLocked} 
         />
       )}

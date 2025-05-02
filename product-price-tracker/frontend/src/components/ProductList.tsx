@@ -4,10 +4,11 @@ import { Product } from '../types';
 interface ProductListProps {
   products: Product[];
   onEdit: (product: Product) => void;
-  isLocked?: boolean;
+  onDelete: (id: number) => void;
+  isLocked: boolean;
 }
 
-const ProductList: React.FC<ProductListProps> = ({ products, onEdit, isLocked = false }) => {
+const ProductList: React.FC<ProductListProps> = ({ products, onEdit, onDelete, isLocked }) => {
   if (products.length === 0) {
     return (
       <div className="alert alert-info text-center my-3">
@@ -58,6 +59,14 @@ const ProductList: React.FC<ProductListProps> = ({ products, onEdit, isLocked = 
                   <i className="bi bi-pencil-square me-1"></i>
                   Editar
                 </button>
+                {!isLocked && typeof product.id === 'number' && (
+                  <button
+                    className="btn btn-sm btn-outline-danger ms-2"
+                    onClick={() => onDelete(product.id as number)}
+                  >
+                    <i className="bi bi-trash"></i>
+                  </button>
+                )}
               </td>
             </tr>
           ))}
