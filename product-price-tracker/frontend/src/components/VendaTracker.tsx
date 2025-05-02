@@ -158,6 +158,14 @@ const VendaTracker: React.FC = () => {
             </div>
           ) : (
             <div>
+              <div className="mb-3 d-flex gap-2">
+                <a href="https://xtremeconfapi.onrender.com/download/produtos" className="btn btn-outline-success" download>
+                  <i className="bi bi-download me-1"></i> Baixar Produtos CSV
+                </a>
+                <a href="https://xtremeconfapi.onrender.com/download/vendas" className="btn btn-outline-primary" download>
+                  <i className="bi bi-download me-1"></i> Baixar Vendas CSV
+                </a>
+              </div>
               <h5 className="mb-3">Adicionar Nova Venda</h5>
               <VendaForm onSubmit={handleSubmit} disabled={isLocked} />
             </div>

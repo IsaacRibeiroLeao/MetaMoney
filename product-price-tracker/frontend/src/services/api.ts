@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Product, Venda } from '../types';
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_API_URL || 'https://xtremeconfapi.onrender.com';
 
 // Final value type definition
 export interface FinalValue {
@@ -19,6 +19,33 @@ export const addProduct = async (product: Product): Promise<Product> => {
   const response = await axios.post(`${API_URL}/products`, product);
   return response.data;
 };
+
+// Static menu options (Pratos e Bebidas)
+export const STATIC_PRODUCTS: Product[] = [
+  { name: 'Tradicional (300ml)', price: 15 },
+  { name: 'Porção de Paçoca', price: 10 },
+  { name: 'Copo de Creme de Galinha', price: 12 },
+  { name: 'Arrumadinho', price: 20 },
+  { name: 'Suco', price: 5 },
+  { name: 'Refrigerante', price: 5 },
+];
+
+export function getStaticProducts(): Product[] {
+  return STATIC_PRODUCTS;
+}
+
+// Static combo options
+export const COMBO_PRODUCTS: Product[] = [
+  { name: 'Combo dos Apóstolos', price: 115 }, // 5 arrumadinho + 5 bebidas
+  { name: 'Combo Casal Ungido', price: 46 },    // 2 arrumadinhos + 2 bebidas
+  { name: 'Combo Misericórdia', price: 37 },    // 1 arrumadinho + 1 açaí + 1 bebida
+  { name: 'Combo Não vou pro Iphm', price: 23 },// 1 arrumadinho + 1 bebida
+  { name: 'Combo Casal Fit', price: 28 },       // 2 copos de açaí
+];
+
+export function getComboProducts(): Product[] {
+  return COMBO_PRODUCTS;
+}
 
 export const updateProduct = async (product: Product): Promise<Product> => {
   if (!product.id) throw new Error('Product ID is required for update');
