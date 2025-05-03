@@ -159,7 +159,7 @@ const ProductTracker: React.FC = () => {
         <div className="card-header bg-white d-flex justify-content-between align-items-center py-3">
           <h5 className="mb-0 d-flex align-items-center">
             <i className="bi bi-box-seam text-primary me-2"></i>
-            Produtos
+            Valores
           </h5>
           <div>
             {isLocked ? (
