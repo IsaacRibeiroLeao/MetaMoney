@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import VendaForm from './VendaForm';
 import VendaList from './VendaList';
+import RaffleScreen from './RaffleScreen';
 import { Venda } from '../types';
 import { getVendas, addVenda, updateVenda, getVendasFinalValue, lockVendasFinalValue, FinalValue, deleteVenda, clearAll } from '../services/api';
 import { eventService, EVENTS } from '../services/eventService';
@@ -12,6 +13,7 @@ const VendaTracker: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [finalValue, setFinalValue] = useState<FinalValue | null>(null);
   const [isLocked, setIsLocked] = useState<boolean>(false);
+  const [showRaffle, setShowRaffle] = useState<boolean>(false);
   const [notification, setNotification] = useState<{
     show: boolean;
     message: string;
@@ -157,17 +159,22 @@ const VendaTracker: React.FC = () => {
   }, [vendas, isLocked, finalValue]);
 
   return (
-    <div>
-      {error && (
-        <div className="alert alert-danger mb-4">
-          {error}
+    <div className="venda-tracker">
+      {/* Raffle Screen */}
+      {showRaffle && <RaffleScreen onClose={() => setShowRaffle(false)} />}
+      
+      {/* Notification */}
+      {notification.show && (
+        <div className={`alert alert-${notification.type} alert-dismissible fade show`} role="alert">
+          <i className={`bi bi-${notification.type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2`}></i>
+          {notification.message}
+          <button type="button" className="btn-close" onClick={() => setNotification(prev => ({ ...prev, show: false }))} aria-label="Close"></button>
         </div>
       )}
 
-      {notification.show && (
-        <div className={`alert alert-${notification.type} alert-dismissible fade show`} role="alert">
-          {notification.message}
-          <button type="button" className="btn-close" onClick={() => setNotification(prev => ({ ...prev, show: false }))}></button>
+      {error && (
+        <div className="alert alert-danger mb-4">
+          {error}
         </div>
       )}
 
@@ -215,6 +222,29 @@ const VendaTracker: React.FC = () => {
       <hr className="my-4" />
       
       <div className={`card mb-4 ${isLocked ? 'bg-light' : ''}`}>
+        <div className="card-header d-flex justify-content-between align-items-center bg-primary text-white">
+          <h5 className="mb-0">
+            <i className="bi bi-cart me-2"></i>
+            Vendas
+          </h5>
+          <div>
+            <button 
+              className="btn btn-sm btn-warning me-2" 
+              onClick={() => setShowRaffle(true)}
+            >
+              <i className="bi bi-trophy me-1"></i>
+              Sorteio
+            </button>
+            <button 
+              className="btn btn-sm btn-light me-2" 
+              onClick={handleLockFinalValue}
+              disabled={isLocked || loading}
+            >
+              <i className="bi bi-lock me-1"></i>
+              Bloquear
+            </button>
+          </div>
+        </div>
         <div className="card-body">
           <div className="d-flex justify-content-between align-items-center">
             <h5 className="mb-0">

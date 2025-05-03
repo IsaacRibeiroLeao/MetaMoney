@@ -15,16 +15,31 @@ const defaultVenda: Venda = {
 
 const VendaForm: React.FC<VendaFormProps> = ({ onSubmit, initialVenda, disabled = false }) => {
   const [venda, setVenda] = useState<Venda>(initialVenda || defaultVenda);
-  const [errors, setErrors] = useState<{name?: string, price?: string}>({});
+  const [customerName, setCustomerName] = useState<string>('');
+  const [errors, setErrors] = useState<{name?: string, price?: string, customerName?: string}>({});
+  
+  // Check if the current venda is one of the special combos that needs a customer name
+  const isSpecialCombo = venda.name === 'Combo Misericórdia' || 
+                        venda.name === 'Combo dos Apóstolos' || 
+                        venda.name === 'Combo Casal Ungido';
 
   useEffect(() => {
     if (initialVenda) {
       setVenda(initialVenda);
+      
+      // Extract customer name from formatted name if it's a special combo
+      const specialCombos = ['Combo Misericórdia', 'Combo dos Apóstolos', 'Combo Casal Ungido'];
+      const comboName = specialCombos.find(combo => initialVenda.name.startsWith(combo));
+      
+      if (comboName && initialVenda.name.includes(' - ')) {
+        const extractedName = initialVenda.name.substring(comboName.length + 3); // +3 for ' - '
+        setCustomerName(extractedName);
+      }
     }
   }, [initialVenda]);
 
   const validate = (): boolean => {
-    const newErrors: {name?: string, price?: string} = {};
+    const newErrors: {name?: string, price?: string, customerName?: string} = {};
     
     if (!venda.name.trim()) {
       newErrors.name = 'Nome da venda é obrigatório';
@@ -35,6 +50,11 @@ const VendaForm: React.FC<VendaFormProps> = ({ onSubmit, initialVenda, disabled 
       newErrors.price = 'Preço deve ser maior que 0';
     }
     
+    // Validate customer name for special combos
+    if (isSpecialCombo && !customerName.trim()) {
+      newErrors.customerName = 'Nome do cliente é obrigatório para este combo';
+    }
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -43,9 +63,16 @@ const VendaForm: React.FC<VendaFormProps> = ({ onSubmit, initialVenda, disabled 
     e.preventDefault();
     
     if (validate()) {
+      // Format the name for special combos
+      let formattedName = venda.name;
+      if (isSpecialCombo && customerName.trim()) {
+        formattedName = `${venda.name} - ${customerName.trim()}`;
+      }
+      
       // Ensure price is a number before submitting
       const submittedVenda = {
         ...venda,
+        name: formattedName,
         price: typeof venda.price === 'string' ? parseFloat(venda.price as string) || 0 : venda.price
       };
       
@@ -54,16 +81,22 @@ const VendaForm: React.FC<VendaFormProps> = ({ onSubmit, initialVenda, disabled 
       // Reset form if it's not an edit
       if (!initialVenda) {
         setVenda(defaultVenda);
+        setCustomerName('');
       }
     }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setVenda(prev => ({
-      ...prev,
-      [name]: name === 'price' ? (value === '' ? '' : parseFloat(value) || 0) : value
-    }));
+    
+    if (name === 'customerName') {
+      setCustomerName(value);
+    } else {
+      setVenda(prev => ({
+        ...prev,
+        [name]: name === 'price' ? (value === '' ? '' : parseFloat(value) || 0) : value
+      }));
+    }
   };
 
   return (
@@ -83,6 +116,24 @@ const VendaForm: React.FC<VendaFormProps> = ({ onSubmit, initialVenda, disabled 
   disabled={disabled}
 />
 {errors.name && <div className="invalid-feedback">{errors.name}</div>}
+
+{/* Customer name field for special combos */}
+{isSpecialCombo && (
+  <div className="mt-2">
+    <label htmlFor="customerName" className="form-label">Nome do Cliente</label>
+    <input
+      type="text"
+      className={`form-control ${errors.customerName ? 'is-invalid' : ''}`}
+      id="customerName"
+      name="customerName"
+      value={customerName}
+      onChange={handleChange}
+      disabled={disabled}
+      placeholder="Nome para o sorteio"
+    />
+    {errors.customerName && <div className="invalid-feedback">{errors.customerName}</div>}
+  </div>
+)}
 
 {/* Static Options Below Nome da Venda */}
 <div className="mt-2">

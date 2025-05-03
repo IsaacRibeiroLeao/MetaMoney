@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Product, Venda } from '../types';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://xtremeconfapi.onrender.com';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 // Final value type definition
 export interface FinalValue {
@@ -104,3 +104,13 @@ export const lockVendasFinalValue = async (): Promise<FinalValue> => {
   const response = await axios.put(`${API_URL}/vendas-final-value/lock`);
   return response.data;
 };
+
+// Random name selection for raffle
+export interface RandomNameResponse {
+  selected_name: string;
+}
+
+export function selectRandomName(names: string[]): Promise<RandomNameResponse> {
+  return axios.post(`${API_URL}/random-name`, { names })
+    .then(response => response.data);
+}
