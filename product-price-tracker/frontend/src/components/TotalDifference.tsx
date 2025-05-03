@@ -82,7 +82,7 @@ const TotalDifference: React.FC = () => {
               <div className="card-body p-3">
                 <div className="d-flex align-items-center mb-2">
                   <i className="bi bi-box-seam text-primary me-2 fs-4"></i>
-                  <h5 className="card-title mb-0">Total de Produtos</h5>
+                  <h5 className="card-title mb-0">Valor Total</h5>
                 </div>
                 <p className="card-text display-6 fw-bold text-primary mb-0">R$ {productsTotal.toFixed(2)}</p>
               </div>

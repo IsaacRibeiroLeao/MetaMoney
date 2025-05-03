@@ -195,7 +195,7 @@ const ProductTracker: React.FC = () => {
                 <div className="mb-4">
                   <h6 className="mb-3 text-muted">
                     <i className="bi bi-plus-circle me-2"></i>
-                    Adicionar Novo Produto
+                    Novo Pix
                   </h6>
                   {editingProduct ? (
                     <>

@@ -26,7 +26,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, initialProduct, dis
     const newErrors: {name?: string, price?: string} = {};
     
     if (!product.name.trim()) {
-      newErrors.name = 'Nome do produto é obrigatório';
+      newErrors.name = 'Nome da pessoa e obrigatorio';
     }
     
     if (product.price <= 0) {
@@ -64,7 +64,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, initialProduct, dis
         <form onSubmit={handleSubmit}>
           <div className="row mb-3">
             <div className="col-md-6 mb-3 mb-md-0">
-              <label htmlFor="productName" className="form-label">Nome do Produto</label>
+              <label htmlFor="productName" className="form-label">Identificação</label>
               <input
                 type="text"
                 className={`form-control ${errors.name ? 'is-invalid' : ''}`}
@@ -77,7 +77,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, initialProduct, dis
               {errors.name && <div className="invalid-feedback">{errors.name}</div>}
             </div>
             <div className="col-md-6">
-              <label htmlFor="productPrice" className="form-label">Preço</label>
+              <label htmlFor="productPrice" className="form-label">Valor</label>
               <input
                 type="number"
                 className={`form-control ${errors.price ? 'is-invalid' : ''}`}
@@ -98,7 +98,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, initialProduct, dis
               className="btn btn-primary"
               disabled={disabled}
             >
-              {initialProduct?.id ? 'Atualizar Produto' : 'Adicionar Produto'}
+              {initialProduct?.id ? 'Atualizar Produto' : 'Adicionar'}
             </button>
           </div>
         </form>
