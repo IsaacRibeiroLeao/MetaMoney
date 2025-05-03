@@ -128,7 +128,7 @@ const VendaForm: React.FC<VendaFormProps> = ({ onSubmit, initialVenda, disabled 
         disabled={disabled}
       >
         {item.name} (R$ {item.price})
-        {item.name === 'Combo Misericórdia' && (
+        {(item.name === 'Combo Misericórdia' || item.name === 'Combo dos Apóstolos' || item.name === 'Combo Casal Ungido') && (
           <span className="ms-1" title="Inclui sorteio"><i className="bi bi-exclamation-triangle-fill text-danger"></i></span>
         )}
       </button>
