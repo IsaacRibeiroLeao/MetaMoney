@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Product, Venda } from '../types';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const API_URL = process.env.REACT_APP_API_URL || 'https://xtremeconfapi.onrender.com';
 
 // Final value type definition
 export interface FinalValue {
@@ -22,7 +22,7 @@ export const addProduct = async (product: Product): Promise<Product> => {
 
 // Static menu options (Pratos e Bebidas)
 export const STATIC_PRODUCTS: Product[] = [
-  { name: 'Tradicional (300ml)', price: 15 },
+  { name: 'Acai Tradicional (300ml)', price: 15 },
   { name: 'Porção de Paçoca', price: 10 },
   { name: 'Copo de Creme de Galinha', price: 12 },
   { name: 'Arrumadinho', price: 20 },
