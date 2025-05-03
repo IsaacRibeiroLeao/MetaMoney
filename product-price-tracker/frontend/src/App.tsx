@@ -17,7 +17,7 @@ const theme = createTheme({
 });
 
 function App() {
-  const [activeTab, setActiveTab] = useState<'produtos' | 'vendas'>('produtos');
+  const [activeTab, setActiveTab] = useState<'Valores' | 'vendas' | 'produtos'>('Valores');
 
   return (
     <ThemeProvider theme={theme}>
@@ -34,11 +34,11 @@ function App() {
               </h1>
               <div className="btn-group">
                 <button 
-                  className={`btn ${activeTab === 'produtos' ? 'btn-light' : 'btn-outline-light'} btn-sm`}
-                  onClick={() => setActiveTab('produtos')}
+                  className={`btn ${activeTab === 'Valores' ? 'btn-light' : 'btn-outline-light'} btn-sm`}
+                  onClick={() => setActiveTab('Valores')}
                 >
                   <i className="bi bi-box me-1"></i>
-                  <span className="d-none d-md-inline">Produtos</span>
+                  <span className="d-none d-md-inline">Valores</span>
                 </button>
                 <button 
                   className={`btn ${activeTab === 'vendas' ? 'btn-light' : 'btn-outline-light'} btn-sm`}
@@ -57,7 +57,7 @@ function App() {
           <TotalDifference />
           
           <div className="mt-4">
-            {activeTab === 'produtos' ? (
+            {activeTab === 'Valores' ? (
               <ProductTracker />
             ) : (
               <VendaTracker />

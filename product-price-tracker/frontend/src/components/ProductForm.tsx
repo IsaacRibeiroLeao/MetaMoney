@@ -9,7 +9,7 @@ interface ProductFormProps {
 
 const defaultProduct: Product = {
   name: '',
-  price: 0
+  price: '' as unknown as number
 };
 
 const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, initialProduct, disabled = false }) => {
@@ -29,7 +29,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, initialProduct, dis
       newErrors.name = 'Nome da pessoa e obrigatorio';
     }
     
-    if (product.price <= 0) {
+    const numericPrice = typeof product.price === 'string' ? parseFloat(product.price as string) || 0 : product.price;
+    if (numericPrice <= 0) {
       newErrors.price = 'Preço deve ser maior que 0';
     }
     
@@ -41,7 +42,13 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, initialProduct, dis
     e.preventDefault();
     
     if (validate()) {
-      onSubmit(product);
+      // Ensure price is a number before submitting
+      const submittedProduct = {
+        ...product,
+        price: typeof product.price === 'string' ? parseFloat(product.price as string) || 0 : product.price
+      };
+      
+      onSubmit(submittedProduct);
       
       // Reset form if it's not an edit
       if (!initialProduct) {
@@ -54,7 +61,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, initialProduct, dis
     const { name, value } = e.target;
     setProduct(prev => ({
       ...prev,
-      [name]: name === 'price' ? parseFloat(value) || 0 : value
+      [name]: name === 'price' ? (value === '' ? '' : parseFloat(value) || 0) : value
     }));
   };
 

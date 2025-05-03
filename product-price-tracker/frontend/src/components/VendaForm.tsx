@@ -10,7 +10,7 @@ interface VendaFormProps {
 
 const defaultVenda: Venda = {
   name: '',
-  price: 0
+  price: '' as unknown as number
 };
 
 const VendaForm: React.FC<VendaFormProps> = ({ onSubmit, initialVenda, disabled = false }) => {
@@ -30,7 +30,8 @@ const VendaForm: React.FC<VendaFormProps> = ({ onSubmit, initialVenda, disabled 
       newErrors.name = 'Nome da venda é obrigatório';
     }
     
-    if (venda.price <= 0) {
+    const numericPrice = typeof venda.price === 'string' ? parseFloat(venda.price as string) || 0 : venda.price;
+    if (numericPrice <= 0) {
       newErrors.price = 'Preço deve ser maior que 0';
     }
     
@@ -42,7 +43,13 @@ const VendaForm: React.FC<VendaFormProps> = ({ onSubmit, initialVenda, disabled 
     e.preventDefault();
     
     if (validate()) {
-      onSubmit(venda);
+      // Ensure price is a number before submitting
+      const submittedVenda = {
+        ...venda,
+        price: typeof venda.price === 'string' ? parseFloat(venda.price as string) || 0 : venda.price
+      };
+      
+      onSubmit(submittedVenda);
       
       // Reset form if it's not an edit
       if (!initialVenda) {
@@ -55,7 +62,7 @@ const VendaForm: React.FC<VendaFormProps> = ({ onSubmit, initialVenda, disabled 
     const { name, value } = e.target;
     setVenda(prev => ({
       ...prev,
-      [name]: name === 'price' ? parseFloat(value) || 0 : value
+      [name]: name === 'price' ? (value === '' ? '' : parseFloat(value) || 0) : value
     }));
   };
 
