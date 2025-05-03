@@ -139,7 +139,7 @@ const VendaForm: React.FC<VendaFormProps> = ({ onSubmit, initialVenda, disabled 
 <div className="mt-2">
   <div className="fw-bold mb-1">Pratos</div>
   <div className="mb-2 d-flex flex-wrap gap-2">
-    {STATIC_PRODUCTS.filter(p => ['Tradicional (300ml)', 'Porção de Paçoca', 'Copo de Creme de Galinha'].includes(p.name)).map((item, idx) => (
+    {STATIC_PRODUCTS.filter(p => ['Acai Tradicional (300ml)', 'Porção de Paçoca', 'Copo de Creme de Galinha'].includes(p.name)).map((item, idx) => (
       <button
         key={item.name}
         type="button"
