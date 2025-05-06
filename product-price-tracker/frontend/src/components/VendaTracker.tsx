@@ -127,8 +127,12 @@ const VendaTracker: React.FC = () => {
     try {
       await clearAll();
       setVendas([]);
+      // Recarregar os dados para garantir que pratos e categorias também sejam atualizados
+      fetchData();
       showNotification('Todas as vendas e produtos foram removidos!', 'success');
       eventService.emit(EVENTS.VENDAS_UPDATED);
+      // Emitir evento para atualizar os componentes que dependem de pratos e categorias
+      eventService.emit(EVENTS.FINAL_VALUES_UPDATED);
     } catch (err) {
       console.error('Erro ao limpar tudo:', err);
       showNotification('Falha ao limpar tudo.', 'danger');

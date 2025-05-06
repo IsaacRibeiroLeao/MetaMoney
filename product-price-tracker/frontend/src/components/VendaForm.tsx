@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Venda, Product } from '../types';
-import { STATIC_PRODUCTS, COMBO_PRODUCTS } from '../services/api';
+import { Venda, Product, Categoria, Prato } from '../types';
+import { getCategorias, getPratos } from '../services/api';
 
 interface VendaFormProps {
   onSubmit: (venda: Venda) => void;
@@ -17,26 +17,57 @@ const VendaForm: React.FC<VendaFormProps> = ({ onSubmit, initialVenda, disabled 
   const [venda, setVenda] = useState<Venda>(initialVenda || defaultVenda);
   const [customerName, setCustomerName] = useState<string>('');
   const [errors, setErrors] = useState<{name?: string, price?: string, customerName?: string}>({});
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
+  const [pratos, setPratos] = useState<Prato[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   
-  // Check if the current venda is one of the special combos that needs a customer name
-  const isSpecialCombo = venda.name === 'Combo Misericórdia' || 
-                        venda.name === 'Combo dos Apóstolos' || 
-                        venda.name === 'Combo Casal Ungido';
+  // Check if the current venda is from a prato that participates in raffle
+  const [isParticipaSorteio, setIsParticipaSorteio] = useState<boolean>(false);
+
+  useEffect(() => {
+    // Carregar categorias e pratos do banco de dados
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [categoriasData, pratosData] = await Promise.all([
+          getCategorias(),
+          getPratos()
+        ]);
+        setCategorias(categoriasData);
+        setPratos(pratosData);
+        setLoading(false);
+      } catch (error) {
+        console.error('Erro ao carregar dados do cardápio:', error);
+        setLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, []);
 
   useEffect(() => {
     if (initialVenda) {
       setVenda(initialVenda);
       
-      // Extract customer name from formatted name if it's a special combo
-      const specialCombos = ['Combo Misericórdia', 'Combo dos Apóstolos', 'Combo Casal Ungido'];
-      const comboName = specialCombos.find(combo => initialVenda.name.startsWith(combo));
-      
-      if (comboName && initialVenda.name.includes(' - ')) {
-        const extractedName = initialVenda.name.substring(comboName.length + 3); // +3 for ' - '
-        setCustomerName(extractedName);
+      // Extract customer name from formatted name if it participates in raffle
+      if (initialVenda.name.includes(' - ')) {
+        const parts = initialVenda.name.split(' - ');
+        if (parts.length > 1) {
+          setCustomerName(parts[1]);
+        }
       }
     }
   }, [initialVenda]);
+  
+  // Verificar se o prato selecionado participa do sorteio
+  useEffect(() => {
+    if (venda.name) {
+      const pratoSelecionado = pratos.find(p => p.nome === venda.name);
+      setIsParticipaSorteio(pratoSelecionado?.participa_sorteio || false);
+    } else {
+      setIsParticipaSorteio(false);
+    }
+  }, [venda.name, pratos]);
 
   const validate = (): boolean => {
     const newErrors: {name?: string, price?: string, customerName?: string} = {};
@@ -50,9 +81,9 @@ const VendaForm: React.FC<VendaFormProps> = ({ onSubmit, initialVenda, disabled 
       newErrors.price = 'Preço deve ser maior que 0';
     }
     
-    // Validate customer name for special combos
-    if (isSpecialCombo && !customerName.trim()) {
-      newErrors.customerName = 'Nome do cliente é obrigatório para este combo';
+    // Validate customer name for pratos that participate in raffle
+    if (isParticipaSorteio && !customerName.trim()) {
+      newErrors.customerName = 'Nome do cliente é obrigatório para itens que participam do sorteio';
     }
     
     setErrors(newErrors);
@@ -63,9 +94,9 @@ const VendaForm: React.FC<VendaFormProps> = ({ onSubmit, initialVenda, disabled 
     e.preventDefault();
     
     if (validate()) {
-      // Format the name for special combos
+      // Format the name for items that participate in raffle
       let formattedName = venda.name;
-      if (isSpecialCombo && customerName.trim()) {
+      if (isParticipaSorteio && customerName.trim()) {
         formattedName = `${venda.name} - ${customerName.trim()}`;
       }
       
@@ -117,8 +148,8 @@ const VendaForm: React.FC<VendaFormProps> = ({ onSubmit, initialVenda, disabled 
 />
 {errors.name && <div className="invalid-feedback">{errors.name}</div>}
 
-{/* Customer name field for special combos */}
-{isSpecialCombo && (
+{/* Customer name field for items that participate in raffle */}
+{isParticipaSorteio && (
   <div className="mt-2">
     <label htmlFor="customerName" className="form-label">Nome do Cliente</label>
     <input
@@ -135,56 +166,43 @@ const VendaForm: React.FC<VendaFormProps> = ({ onSubmit, initialVenda, disabled 
   </div>
 )}
 
-{/* Static Options Below Nome da Venda */}
+{/* Dynamic Categories and Menu Items */}
 <div className="mt-2">
-  <div className="fw-bold mb-1">Pratos</div>
-  <div className="mb-2 d-flex flex-wrap gap-2">
-    {STATIC_PRODUCTS.filter(p => ['Acai Tradicional (300ml)', 'Porção de Paçoca', 'Copo de Creme de Galinha'].includes(p.name)).map((item, idx) => (
-      <button
-        key={item.name}
-        type="button"
-        className="btn btn-outline-secondary btn-sm"
-        style={{minWidth: 120}}
-        onClick={() => setVenda(v => ({ ...v, name: item.name, price: item.price }))}
-        disabled={disabled}
-      >
-        {item.name} (R$ {item.price})
-      </button>
-    ))}
-  </div>
-  <div className="fw-bold mb-1">Bebidas</div>
-  <div className="mb-2 d-flex flex-wrap gap-2">
-    {STATIC_PRODUCTS.filter(p => ['Arrumadinho', 'Suco', 'Refrigerante'].includes(p.name)).map((item, idx) => (
-      <button
-        key={item.name}
-        type="button"
-        className="btn btn-outline-info btn-sm"
-        style={{minWidth: 120}}
-        onClick={() => setVenda(v => ({ ...v, name: item.name, price: item.price }))}
-        disabled={disabled}
-      >
-        {item.name} (R$ {item.price})
-      </button>
-    ))}
-  </div>
-  <div className="fw-bold mb-1">Combos</div>
-  <div className="mb-2 d-flex flex-wrap gap-2">
-    {COMBO_PRODUCTS.map((item: Product, idx: number) => (
-      <button
-        key={item.name}
-        type="button"
-        className={`btn btn-outline-warning btn-sm d-flex align-items-center`}
-        style={{minWidth: 180}}
-        onClick={() => setVenda(v => ({ ...v, name: item.name, price: item.price }))}
-        disabled={disabled}
-      >
-        {item.name} (R$ {item.price})
-        {(item.name === 'Combo Misericórdia' || item.name === 'Combo dos Apóstolos' || item.name === 'Combo Casal Ungido') && (
-          <span className="ms-1" title="Inclui sorteio"><i className="bi bi-exclamation-triangle-fill text-danger"></i></span>
-        )}
-      </button>
-    ))}
-  </div>
+  {loading ? (
+    <div className="d-flex justify-content-center">
+      <div className="spinner-border text-primary" role="status">
+        <span className="visually-hidden">Carregando...</span>
+      </div>
+    </div>
+  ) : (
+    categorias.map((categoria) => (
+      <div key={categoria.id} className="mb-3">
+        <div className="fw-bold mb-1">{categoria.nome}</div>
+        <div className="mb-2 d-flex flex-wrap gap-2">
+          {pratos
+            .filter(prato => prato.categoria_id === categoria.id)
+            .map((prato) => (
+              <button
+                key={prato.id}
+                type="button"
+                className={`btn ${prato.participa_sorteio ? 'btn-outline-warning' : 'btn-outline-secondary'} btn-sm d-flex align-items-center`}
+                style={{minWidth: 150}}
+                onClick={() => setVenda(v => ({ ...v, name: prato.nome, price: prato.preco }))}
+                disabled={disabled}
+                title={prato.descricao || ''}
+              >
+                {prato.nome} (R$ {prato.preco})
+                {prato.participa_sorteio && (
+                  <span className="ms-1" title="Inclui sorteio">
+                    <i className="bi bi-exclamation-triangle-fill text-danger"></i>
+                  </span>
+                )}
+              </button>
+            ))}
+        </div>
+      </div>
+    ))
+  )}
 </div>
             </div>
             <div className="col-md-6">

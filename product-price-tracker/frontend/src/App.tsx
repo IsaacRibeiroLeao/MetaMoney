@@ -3,6 +3,9 @@ import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import ProductTracker from './components/ProductTracker';
 import VendaTracker from './components/VendaTracker';
 import TotalDifference from './components/TotalDifference';
+import CardapioManager from './components/CardapioManager';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const theme = createTheme({
   palette: {
@@ -17,7 +20,7 @@ const theme = createTheme({
 });
 
 function App() {
-  const [activeTab, setActiveTab] = useState<'Valores' | 'vendas' | 'produtos'>('Valores');
+  const [activeTab, setActiveTab] = useState<'Valores' | 'vendas' | 'cardapio'>('Valores');
 
   return (
     <ThemeProvider theme={theme}>
@@ -30,7 +33,7 @@ function App() {
               <h1 className="h4 mb-0 d-flex align-items-center">
                 <i className="bi bi-graph-up-arrow me-2"></i>
                 <span className="d-none d-sm-inline">Rastreador de Preços e Vendas</span>
-                <span className="d-inline d-sm-none">MetaMoney</span>
+                <span className="d-inline d-sm-none">XtremeConfApp</span>
               </h1>
               <div className="btn-group">
                 <button 
@@ -47,6 +50,13 @@ function App() {
                   <i className="bi bi-cart me-1"></i>
                   <span className="d-none d-md-inline">Vendas</span>
                 </button>
+                <button 
+                  className={`btn ${activeTab === 'cardapio' ? 'btn-light' : 'btn-outline-light'} btn-sm`}
+                  onClick={() => setActiveTab('cardapio')}
+                >
+                  <i className="bi bi-menu-button-wide me-1"></i>
+                  <span className="d-none d-md-inline">Cardápio</span>
+                </button>
               </div>
             </div>
           </div>
@@ -59,14 +69,17 @@ function App() {
           <div className="mt-4">
             {activeTab === 'Valores' ? (
               <ProductTracker />
-            ) : (
+            ) : activeTab === 'vendas' ? (
               <VendaTracker />
+            ) : (
+              <CardapioManager />
             )}
           </div>
         </main>
 
         {/* Removido o rodapé conforme solicitado */}
       </div>
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
     </ThemeProvider>
   );
 }

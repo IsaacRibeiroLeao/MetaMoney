@@ -1,7 +1,7 @@
 import axios from 'axios';
-import { Product, Venda } from '../types';
+import { Product, Venda, Categoria, Prato } from '../types';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://xtremeconfapi.onrender.com';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 // Final value type definition
 export interface FinalValue {
@@ -20,32 +20,54 @@ export const addProduct = async (product: Product): Promise<Product> => {
   return response.data;
 };
 
-// Static menu options (Pratos e Bebidas)
-export const STATIC_PRODUCTS: Product[] = [
-  { name: 'Acai Tradicional (300ml)', price: 15 },
-  { name: 'Porção de Paçoca', price: 10 },
-  { name: 'Copo de Creme de Galinha', price: 12 },
-  { name: 'Arrumadinho', price: 20 },
-  { name: 'Suco', price: 5 },
-  { name: 'Refrigerante', price: 5 },
-];
+// API para Categorias
+export const getCategorias = async (): Promise<Categoria[]> => {
+  const response = await axios.get(`${API_URL}/categorias`);
+  return response.data;
+};
 
-export function getStaticProducts(): Product[] {
-  return STATIC_PRODUCTS;
-}
+export const addCategoria = async (categoria: Categoria): Promise<Categoria> => {
+  const response = await axios.post(`${API_URL}/categorias`, categoria);
+  return response.data;
+};
 
-// Static combo options
-export const COMBO_PRODUCTS: Product[] = [
-  { name: 'Combo dos Apóstolos', price: 115 }, // 5 arrumadinho + 5 bebidas
-  { name: 'Combo Casal Ungido', price: 46 },    // 2 arrumadinhos + 2 bebidas
-  { name: 'Combo Misericórdia', price: 37 },    // 1 arrumadinho + 1 açaí + 1 bebida
-  { name: 'Combo Não vou pro Iphm', price: 23 },// 1 arrumadinho + 1 bebida
-  { name: 'Combo Casal Fit', price: 28 },       // 2 copos de açaí
-];
+export const updateCategoria = async (categoria: Categoria): Promise<Categoria> => {
+  if (!categoria.id) throw new Error('Categoria ID is required for update');
+  const response = await axios.put(`${API_URL}/categorias/${categoria.id}`, categoria);
+  return response.data;
+};
 
-export function getComboProducts(): Product[] {
-  return COMBO_PRODUCTS;
-}
+export const deleteCategoria = async (id: number): Promise<{ deleted: boolean }> => {
+  const response = await axios.delete(`${API_URL}/categorias/${id}`);
+  return response.data;
+};
+
+// API para Pratos
+export const getPratos = async (): Promise<Prato[]> => {
+  const response = await axios.get(`${API_URL}/pratos`);
+  return response.data;
+};
+
+export const getPratosByCategoria = async (categoriaId: number): Promise<Prato[]> => {
+  const response = await axios.get(`${API_URL}/categorias/${categoriaId}/pratos`);
+  return response.data;
+};
+
+export const addPrato = async (prato: Prato): Promise<Prato> => {
+  const response = await axios.post(`${API_URL}/pratos`, prato);
+  return response.data;
+};
+
+export const updatePrato = async (prato: Prato): Promise<Prato> => {
+  if (!prato.id) throw new Error('Prato ID is required for update');
+  const response = await axios.put(`${API_URL}/pratos/${prato.id}`, prato);
+  return response.data;
+};
+
+export const deletePrato = async (id: number): Promise<{ deleted: boolean }> => {
+  const response = await axios.delete(`${API_URL}/pratos/${id}`);
+  return response.data;
+};
 
 export const deleteProduct = async (id: number): Promise<{ deleted: boolean }> => {
   const response = await axios.delete(`${API_URL}/products/${id}`);

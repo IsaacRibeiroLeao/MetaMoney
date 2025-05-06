@@ -16,14 +16,10 @@ const RaffleScreen: React.FC<RaffleScreenProps> = ({ onClose }) => {
   const [animatingName, setAnimatingName] = useState<string>('');
   const [isAnimating, setIsAnimating] = useState(false);
 
-  // Special combos that are eligible for the raffle - wrapped in useMemo to avoid recreating on each render
-  const specialCombos = useMemo(() => [
-    'Combo Misericórdia', 
-    'Combo dos Apóstolos', 
-    'Combo Casal Ungido'
-  ], []);
+  // Não precisamos mais de uma lista de combos específicos, pois vamos considerar
+  // todos os pratos marcados como participantes do sorteio
 
-  // Fix the dependency array by using useCallback for fetchVendas
+  // Usar useCallback para fetchVendas para evitar recriações desnecessárias
   const fetchVendas = useCallback(async () => {
     try {
       setLoading(true);
@@ -32,15 +28,13 @@ const RaffleScreen: React.FC<RaffleScreenProps> = ({ onClose }) => {
       // Extract customer names from eligible vendas
       const names: string[] = [];
       data.forEach(venda => {
-        // Check if this is a special combo venda
-        const isSpecialCombo = specialCombos.some(combo => venda.name.startsWith(combo));
-        
-        if (isSpecialCombo && venda.name.includes(' - ')) {
-          const comboName = specialCombos.find(combo => venda.name.startsWith(combo));
-          if (comboName) {
-            const customerName = venda.name.substring(comboName.length + 3); // +3 for ' - '
-            if (customerName.trim()) {
-              names.push(customerName.trim());
+        // Verificar se a venda inclui um nome de cliente (formato: "nome_do_prato - nome_do_cliente")
+        if (venda.name.includes(' - ')) {
+          const parts = venda.name.split(' - ');
+          if (parts.length > 1) {
+            const customerName = parts[1].trim();
+            if (customerName) {
+              names.push(customerName);
             }
           }
         }
@@ -54,7 +48,7 @@ const RaffleScreen: React.FC<RaffleScreenProps> = ({ onClose }) => {
     } finally {
       setLoading(false);
     }
-  }, [specialCombos]); // Added specialCombos to the dependency array
+  }, []); // Sem dependências agora
   
   useEffect(() => {
     fetchVendas();
@@ -313,7 +307,7 @@ const RaffleScreen: React.FC<RaffleScreenProps> = ({ onClose }) => {
                       ) : (
                         <div className="alert alert-warning">
                           <i className="bi bi-info-circle-fill me-2"></i>
-                          Não há participantes elegíveis para o sorteio. Adicione vendas com os combos especiais.
+                          Não há participantes elegíveis para o sorteio. Adicione vendas com pratos que participam do sorteio e inclua o nome do cliente.
                         </div>
                       )}
                     </>
