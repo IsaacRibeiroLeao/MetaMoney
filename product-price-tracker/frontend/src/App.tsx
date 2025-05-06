@@ -31,7 +31,12 @@ function App() {
           <div className="container py-2">
             <div className="d-flex justify-content-between align-items-center">
               <h1 className="h4 mb-0 d-flex align-items-center">
-                <i className="bi bi-graph-up-arrow me-2"></i>
+                <img 
+                  src="/images/XtremeConf.png" 
+                  alt="XtremeConfApp Logo" 
+                  className="me-2" 
+                  style={{ height: '60px', width: 'auto', borderRadius: '4px' }}
+                />
                 <span className="d-none d-sm-inline">Rastreador de Preços e Vendas</span>
                 <span className="d-inline d-sm-none">XtremeConfApp</span>
               </h1>
