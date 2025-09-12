@@ -162,22 +162,10 @@ const ProductTracker: React.FC = () => {
             Valores
           </h5>
           <div>
-            {isLocked ? (
               <div className="badge bg-info text-dark d-flex align-items-center p-2">
                 <i className="bi bi-lock-fill me-1"></i>
                 <span>Valor final: R$ {finalValue?.total_sum.toFixed(2)}</span>
               </div>
-            ) : (
-              <button
-                className="btn btn-primary btn-sm"
-                onClick={handleLockFinalValue}
-                disabled={products.length === 0}
-              >
-                <i className="bi bi-lock me-1"></i>
-                <span className="d-none d-sm-inline">Bloquear Valor Final</span>
-                <span className="d-inline d-sm-none">Bloquear</span>
-              </button>
-            )}
           </div>
         </div>
 

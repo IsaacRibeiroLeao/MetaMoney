@@ -14,55 +14,50 @@ const defaultProduct: Product = {
 
 const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, initialProduct, disabled = false }) => {
   const [product, setProduct] = useState<Product>(initialProduct || defaultProduct);
-  const [errors, setErrors] = useState<{name?: string, price?: string}>({});
+  const [identificacao, setIdentificacao] = useState<string>('');
+  const [item, setItem] = useState<string>('');
+  const [errors, setErrors] = useState<{ identificacao?: string; item?: string; price?: string }>({});
 
   useEffect(() => {
     if (initialProduct) {
+      // separa identificação e item se houver "-"
+      const [idPart, itemPart] = initialProduct.name.split(" - ");
+      setIdentificacao(idPart || '');
+      setItem(itemPart || '');
       setProduct(initialProduct);
     }
   }, [initialProduct]);
 
   const validate = (): boolean => {
-    const newErrors: {name?: string, price?: string} = {};
-    
-    if (!product.name.trim()) {
-      newErrors.name = 'Nome da pessoa e obrigatorio';
-    }
-    
+    const newErrors: { identificacao?: string; item?: string; price?: string } = {};
+
+    if (!identificacao.trim()) newErrors.identificacao = 'Identificação é obrigatória';
+    if (!item.trim()) newErrors.item = 'Item é obrigatório';
+
     const numericPrice = typeof product.price === 'string' ? parseFloat(product.price as string) || 0 : product.price;
-    if (numericPrice <= 0) {
-      newErrors.price = 'Preço deve ser maior que 0';
-    }
-    
+    if (numericPrice <= 0) newErrors.price = 'Valor deve ser maior que 0';
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (validate()) {
-      // Ensure price is a number before submitting
-      const submittedProduct = {
-        ...product,
-        price: typeof product.price === 'string' ? parseFloat(product.price as string) || 0 : product.price
-      };
-      
-      onSubmit(submittedProduct);
-      
-      // Reset form if it's not an edit
-      if (!initialProduct) {
-        setProduct(defaultProduct);
-      }
-    }
-  };
+    if (!validate()) return;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setProduct(prev => ({
-      ...prev,
-      [name]: name === 'price' ? (value === '' ? '' : parseFloat(value) || 0) : value
-    }));
+    const submittedProduct = {
+      ...product,
+      name: `${identificacao.trim()} - ${item.trim()}`,
+      price: typeof product.price === 'string' ? parseFloat(product.price as string) || 0 : product.price
+    };
+
+    onSubmit(submittedProduct);
+
+    if (!initialProduct) {
+      setIdentificacao('');
+      setItem('');
+      setProduct(defaultProduct);
+    }
   };
 
   return (
@@ -70,41 +65,47 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, initialProduct, dis
       <div className="card-body">
         <form onSubmit={handleSubmit}>
           <div className="row mb-3">
-            <div className="col-md-6 mb-3 mb-md-0">
-              <label htmlFor="productName" className="form-label">Identificação</label>
+            <div className="col-md-4 mb-3 mb-md-0">
+              <label htmlFor="identificacao" className="form-label">Identificação</label>
               <input
                 type="text"
-                className={`form-control ${errors.name ? 'is-invalid' : ''}`}
-                id="productName"
-                name="name"
-                value={product.name}
-                onChange={handleChange}
+                className={`form-control ${errors.identificacao ? 'is-invalid' : ''}`}
+                id="identificacao"
+                value={identificacao}
+                onChange={(e) => setIdentificacao(e.target.value)}
                 disabled={disabled}
               />
-              {errors.name && <div className="invalid-feedback">{errors.name}</div>}
+              {errors.identificacao && <div className="invalid-feedback">{errors.identificacao}</div>}
             </div>
-            <div className="col-md-6">
+            <div className="col-md-4 mb-3 mb-md-0">
+              <label htmlFor="item" className="form-label">Item</label>
+              <input
+                type="text"
+                className={`form-control ${errors.item ? 'is-invalid' : ''}`}
+                id="item"
+                value={item}
+                onChange={(e) => setItem(e.target.value)}
+                disabled={disabled}
+              />
+              {errors.item && <div className="invalid-feedback">{errors.item}</div>}
+            </div>
+            <div className="col-md-4">
               <label htmlFor="productPrice" className="form-label">Valor</label>
               <input
                 type="number"
                 className={`form-control ${errors.price ? 'is-invalid' : ''}`}
                 id="productPrice"
-                name="price"
                 step="0.01"
                 min="0"
                 value={product.price}
-                onChange={handleChange}
+                onChange={(e) => setProduct((prev) => ({ ...prev, price: e.target.value === '' ? '' : parseFloat(e.target.value) }))}
                 disabled={disabled}
               />
               {errors.price && <div className="invalid-feedback">{errors.price}</div>}
             </div>
           </div>
           <div className="d-flex justify-content-end">
-            <button 
-              type="submit" 
-              className="btn btn-primary"
-              disabled={disabled}
-            >
+            <button type="submit" className="btn btn-primary" disabled={disabled}>
               {initialProduct?.id ? 'Atualizar Produto' : 'Adicionar'}
             </button>
           </div>
