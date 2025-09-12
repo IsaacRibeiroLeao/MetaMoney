@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Product, Venda, Categoria, Prato } from '../types';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://xtremeconfapi.onrender.com';
+const API_URL = process.env.REACT_APP_API_URL || 'https://xtremeconfapi-qf8l.onrender.com';
 
 // Final value type definition
 export interface FinalValue {
