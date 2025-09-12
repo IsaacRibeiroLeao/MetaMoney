@@ -98,7 +98,12 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, initialProduct, dis
                 step="0.01"
                 min="0"
                 value={product.price}
-                onChange={(e) => setProduct((prev) => ({ ...prev, price: e.target.value === '' ? '' : parseFloat(e.target.value) }))}
+                  onChange={(e) =>
+                    setProduct((prev) => ({
+                      ...prev,
+                      price: e.target.value === '' ? 0 : parseFloat(e.target.value) || 0
+                    }))
+                  }
                 disabled={disabled}
               />
               {errors.price && <div className="invalid-feedback">{errors.price}</div>}
