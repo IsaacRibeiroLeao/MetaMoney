@@ -73,24 +73,32 @@ const VendaForm: React.FC<VendaFormProps> = ({ onSubmit, onSubmitMany, initialVe
     setCustomerName('');
   };
 
-  const toggleSelect = (prato: Prato) => {
-    setSelectedMap((prev) => {
-      const next = { ...prev };
-      if (next[prato.id]) delete next[prato.id]; else next[prato.id] = { prato, qty: 1 };
-      return next;
-    });
-  };
+ const toggleSelect = (prato: Prato) => { 
+  if (prato.id == null) return;  // protege
+  setSelectedMap((prev) => {
+    const next = { ...prev };
+    if (next[prato.id!]) delete next[prato.id!]; 
+    else next[prato.id!] = { prato, qty: 1 };
+    return next;
+  });
+};
 
-  const setQty = (pratoId: number, qty: number) => {
-    setSelectedMap((prev) => {
-      const entry = prev[pratoId];
-      if (!entry) return prev;
-      return { ...prev, [pratoId]: { ...entry, qty: Math.max(1, Math.floor(qty || 1)) } };
-    });
-  };
+const setQty = (pratoId: number | undefined, qty: number) => {
+  if (pratoId == null) return;  // protege
+  setSelectedMap((prev) => {
+    const entry = prev[pratoId];
+    if (!entry) return prev;
+    return { ...prev, [pratoId]: { ...entry, qty: Math.max(1, Math.floor(qty || 1)) } };
+  });
+};
 
-  const removeSelected = (pratoId: number) => {
-    setSelectedMap((prev) => { const next = { ...prev }; delete next[pratoId]; return next; });
+  const removeSelected = (pratoId: number | undefined) => {
+    if (pratoId == null) return;  // protege
+    setSelectedMap((prev) => { 
+      const next = { ...prev }; 
+      delete next[pratoId]; 
+      return next; 
+    });
   };
 
   const handleSingleSubmit = (e: React.FormEvent) => {
@@ -122,10 +130,11 @@ const VendaForm: React.FC<VendaFormProps> = ({ onSubmit, onSubmitMany, initialVe
                 <div key={categoria.id} className="mb-3">
                   <div className="fw-bold mb-2">{categoria.nome}</div>
                   <div className="row g-2">
-                    {pratosByCategoria(categoria.id).length === 0 ? (
+                    {pratosByCategoria(categoria.id ?? 0).length === 0 ? (
                       <div className="text-muted ps-2">Nenhum prato nesta categoria</div>
                     ) : (
-                      pratosByCategoria(categoria.id).map((prato) => {
+                      pratosByCategoria(categoria.id ?? 0).map((prato) => {
+                        if (prato.id == null) return null;
                         const selected = !!selectedMap[prato.id];
                         const qty = selectedMap[prato.id]?.qty ?? 1;
                         return (
@@ -141,7 +150,7 @@ const VendaForm: React.FC<VendaFormProps> = ({ onSubmit, onSubmitMany, initialVe
                               {selected && (
                                 <div className="d-flex align-items-center mt-2 mt-sm-0">
                                   <input type="number" min={1} value={qty}
-                                    onChange={(e) => setQty(prato.id, Number(e.target.value))}
+                                    onChange={(e) => setQty(prato.id ?? 0, Number(e.target.value))}
                                     className="form-control form-control-sm me-2" style={{ width: 70 }} />
                                   <button type="button" className="btn btn-sm btn-outline-secondary"
                                     onClick={() => removeSelected(prato.id)}><i className="bi bi-x-lg"></i></button>
